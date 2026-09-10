@@ -32,7 +32,7 @@
       scroll-behavior: smooth;
       -webkit-text-size-adjust: 100%;
     }
-    body.modal-open { overflow: hidden; }
+    body.modal-open { overflow: hidden; position: fixed; width: 100%; }
     button, input, select, textarea { font: inherit; }
     button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
@@ -61,6 +61,8 @@
     }
     .nav-tab:hover { color: var(--text-main); }
     .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 750; }
+    .nav-tab .category-count { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #1e293b; color: #cbd5e1; display: grid; place-items: center; font-size: .68rem; font-variant-numeric: tabular-nums; font-weight: 750; }
+    .nav-tab.active .category-count { background: var(--primary); color: #fff; }
 
     /* Main Container */
     main {
@@ -266,12 +268,12 @@
       </div>
 
       <div class="nav-tabs">
-        <button class="nav-tab active" data-category="all"><svg class="icon icon-sm"><use href="#i-globe"/></svg> All Contacts</button>
-        <button class="nav-tab" data-category="work"><svg class="icon icon-sm"><use href="#i-work"/></svg> Work</button>
-        <button class="nav-tab" data-category="personal"><svg class="icon icon-sm"><use href="#i-user"/></svg> Personal</button>
-        <button class="nav-tab" data-category="friendships"><svg class="icon icon-sm"><use href="#i-heart"/></svg> Friendships</button>
-        <button class="nav-tab" data-category="family"><svg class="icon icon-sm"><use href="#i-home"/></svg> Family</button>
-        <button class="nav-tab" data-category="acquaintances"><svg class="icon icon-sm"><use href="#i-users"/></svg> Acquaintances</button>
+        <button class="nav-tab active" data-category="all"><svg class="icon icon-sm"><use href="#i-globe"/></svg> All Contacts <span class="category-count">0</span></button>
+        <button class="nav-tab" data-category="work"><svg class="icon icon-sm"><use href="#i-work"/></svg> Work <span class="category-count">0</span></button>
+        <button class="nav-tab" data-category="personal"><svg class="icon icon-sm"><use href="#i-user"/></svg> Personal <span class="category-count">0</span></button>
+        <button class="nav-tab" data-category="friendships"><svg class="icon icon-sm"><use href="#i-heart"/></svg> Friendships <span class="category-count">0</span></button>
+        <button class="nav-tab" data-category="family"><svg class="icon icon-sm"><use href="#i-home"/></svg> Family <span class="category-count">0</span></button>
+        <button class="nav-tab" data-category="acquaintances"><svg class="icon icon-sm"><use href="#i-users"/></svg> Acquaintances <span class="category-count">0</span></button>
       </div>
 
       <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
@@ -541,7 +543,15 @@
     };
 
     // Navigation & Category Filtering (Synced for Desktop Tabs and Mobile Pills)
+    const CATEGORIES = ['work', 'personal', 'friendships', 'family', 'acquaintances'];
     let currentCategoryFilter = "all";
+
+    // Guards against imported/legacy records with a missing or unknown category,
+    // which would otherwise vanish from every filter and break the badge class.
+    function normalizeCategory(category) {
+      const cat = String(category || '').toLowerCase();
+      return CATEGORIES.includes(cat) ? cat : 'acquaintances';
+    }
 
     function setCategoryFilter(category) {
       currentCategoryFilter = category;
@@ -566,12 +576,12 @@
       const people = getPeople();
       const counts = { all: people.length, work: 0, personal: 0, friendships: 0, family: 0, acquaintances: 0 };
       people.forEach(p => {
-        if (counts[p.category] !== undefined) counts[p.category]++;
+        counts[normalizeCategory(p.category)]++;
       });
 
-      document.querySelectorAll('.category-pill').forEach(pill => {
-        const cat = pill.getAttribute('data-category');
-        const countSpan = pill.querySelector('.category-count');
+      document.querySelectorAll('.category-pill, .nav-tab').forEach(el => {
+        const cat = el.getAttribute('data-category');
+        const countSpan = el.querySelector('.category-count');
         if (countSpan && counts[cat] !== undefined) {
           countSpan.textContent = counts[cat];
         }
@@ -590,7 +600,7 @@
       container.innerHTML = "";
 
       const filtered = people.filter(p => {
-        const matchesCategory = (currentCategoryFilter === 'all') || (p.category === currentCategoryFilter);
+        const matchesCategory = (currentCategoryFilter === 'all') || (normalizeCategory(p.category) === currentCategoryFilter);
         const textBlob = `${p.name} ${p.howKnow} ${p.motivations} ${p.quirks} ${p.background} ${p.personality}`.toLowerCase();
         const matchesSearch = !query || textBlob.includes(query);
         return matchesCategory && matchesSearch;
@@ -605,7 +615,8 @@
 
       filtered.forEach(p => {
         const affinityPercent = (p.affinity || 5) * 10;
-        const badgeClass = `badge-${p.category}`;
+        const category = normalizeCategory(p.category);
+        const badgeClass = `badge-${category}`;
 
         const card = document.createElement('div');
         card.className = 'person-card';
@@ -617,11 +628,11 @@
               <div class="person-name">${escapeHtml(p.name)}</div>
               <div class="person-role">${escapeHtml(p.howKnow || 'Contact')}</div>
             </div>
-            <span class="badge ${badgeClass}">${escapeHtml(p.category)}</span>
+            <span class="badge ${badgeClass}">${escapeHtml(category)}</span>
           </div>
 
           <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">
-            ${p.motivations ? `<strong>Motivation:</strong> ${escapeHtml(p.motivations.slice(0, 95))}...` : 'No motivation noted.'}
+            ${p.motivations ? `<strong>Motivation:</strong> ${escapeHtml(p.motivations.slice(0, 95))}${p.motivations.length > 95 ? '...' : ''}` : 'No motivation noted.'}
           </div>
 
           <div style="margin-top: auto; border-top: 1px solid #1e293b; padding-top: 10px;">
