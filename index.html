@@ -346,9 +346,16 @@
   </div>
 
   <script>
-    // Security Passcode Hash
-    // Will lock strictly to user's exact hash once provided
+    // Security Passcode Hash (One-Way Cryptographic Digest)
+    const TARGET_SHA256_HASH = "9ec9ac233c8772b4d90700f67191b30632e199b8a4818147a5b85caf2a049e7b";
     let TARGET_AUTH_EMAIL = "andrew@arclightxr.com";
+
+    async function computeSHA256(str) {
+      const msgBuffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     // Initial Seed Data
     const SAMPLE_PEOPLE = [
@@ -421,16 +428,23 @@
       if (e.key === 'Enter') { e.preventDefault(); unlockApp(); }
     });
 
-    function unlockApp() {
+    async function unlockApp() {
       const pass = document.getElementById('auth-password').value.trim();
       const err = document.getElementById('auth-error');
 
-      // Accepts user's password or temporary unlock until exact hash is locked in next turn
-      if (pass.length > 0) {
+      let valid = false;
+      try {
+        const computed = await computeSHA256(pass);
+        valid = (computed === TARGET_SHA256_HASH);
+      } catch(e) {
+        console.warn('Cryptographic verification error.', e);
+      }
+
+      if (valid) {
         err.style.display = 'none';
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-shell').style.display = 'flex';
-        sessionStorage.setItem('nexus_prm_auth', 'unlocked');
+        sessionStorage.setItem('nexus_prm_auth', TARGET_SHA256_HASH);
         initPRM();
       } else {
         err.style.display = 'block';
@@ -684,7 +698,7 @@
 
     // Auto-restore session
     window.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem('nexus_prm_auth') === 'unlocked') {
+      if (sessionStorage.getItem('nexus_prm_auth') === TARGET_SHA256_HASH) {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-shell').style.display = 'flex';
         initPRM();
