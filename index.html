@@ -29,7 +29,12 @@
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-size: 14.5px; line-height: 1.55; letter-spacing: -0.005em;
       overflow-x: hidden;
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
     }
+    body.modal-open { overflow: hidden; }
+    button, input, select, textarea { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
     /* SVG Icons */
     .icon { width: 18px; height: 18px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -42,6 +47,7 @@
       padding: 0 clamp(16px, 3vw, 28px); display: flex; justify-content: space-between;
       align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 1000;
       box-shadow: var(--shadow-sm);
+      padding-top: env(safe-area-inset-top);
     }
     .brand { font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
     .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; color: white; background: var(--primary); border-radius: 7px; }
@@ -58,7 +64,7 @@
 
     /* Main Container */
     main {
-      max-width: 1240px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 28px) 64px;
+      width: 100%; max-width: 1240px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 28px) calc(64px + env(safe-area-inset-bottom));
       display: flex; flex-direction: column; gap: 20px;
     }
 
@@ -91,6 +97,7 @@
       width: 100%; padding: 10px 12px; background: #0b0f19;
       border: 1px solid var(--card-border); color: var(--text-main);
       border-radius: 7px; font-size: 14px; outline: none;
+      min-height: 44px;
     }
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
@@ -114,6 +121,7 @@
       background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
       padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer;
       transition: all 0.15s ease;
+      min-width: 0;
     }
     .person-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
     .person-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
@@ -129,13 +137,44 @@
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.75); display: none; justify-content: center;
       align-items: center; z-index: 9999; padding: 16px; overflow-y: auto;
+      overscroll-behavior: contain;
     }
     .modal-backdrop.active { display: flex; }
     .modal-sheet {
       background: #111726; border: 1px solid var(--card-border); border-radius: 14px;
       max-width: 840px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 26px;
       display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow-lg);
+      overscroll-behavior: contain;
     }
+
+    .category-filter-wrap { position: relative; margin-inline: calc(clamp(14px, 3vw, 28px) * -1); }
+    .category-filter {
+      display: flex; gap: 9px; overflow-x: auto; padding: 4px clamp(14px, 3vw, 28px) 10px;
+      scrollbar-width: none; scroll-snap-type: x proximity; overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .category-filter::-webkit-scrollbar { display: none; }
+    .category-pill {
+      flex: 0 0 auto; min-height: 44px; padding: 8px 12px; border: 1px solid var(--card-border);
+      border-radius: 999px; background: #111726; color: var(--text-muted); font-size: .84rem;
+      font-weight: 700; display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+      scroll-snap-align: start;
+    }
+    .category-pill.active { color: #fff; background: var(--primary); border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,.16); }
+    .category-count { min-width: 23px; height: 23px; padding: 0 6px; border-radius: 999px; background: #27334a; color: #dbe4f3; display: grid; place-items: center; font-size: .72rem; font-variant-numeric: tabular-nums; }
+    .category-pill.active .category-count { background: rgba(255,255,255,.2); color: #fff; }
+    .filter-label { color: var(--text-muted); font-size: .76rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; }
+    .modal-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px; }
+    .collapsible { border: 1px solid var(--card-border); border-radius: 10px; background: rgba(11,15,25,.45); }
+    .collapsible > summary { list-style: none; min-height: 52px; padding: 12px 14px; cursor: pointer; display: flex; align-items: center; gap: 9px; font-weight: 750; color: var(--text-main); }
+    .collapsible > summary::-webkit-details-marker { display: none; }
+    .collapsible > summary::after { content: ''; width: 8px; height: 8px; margin-left: auto; border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted); transform: rotate(45deg); transition: transform .2s ease; }
+    .collapsible[open] > summary::after { transform: rotate(225deg); }
+    .collapsible-content { border-top: 1px solid var(--card-border); padding: 14px; }
+    .game-section.collapsible { padding: 0; gap: 0; }
+    .game-section.collapsible > summary { color: var(--accent-gold); }
 
     .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .field-label { font-size: 0.76rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
@@ -144,9 +183,31 @@
     @media (max-width: 768px) {
       .people-grid { grid-template-columns: 1fr; }
       .form-grid-2 { grid-template-columns: 1fr; }
-      header { padding: 0 14px; }
-      main { padding: 16px 12px 48px; }
+      header { min-height: calc(58px + env(safe-area-inset-top)); padding-inline: 12px; gap: 10px; }
+      .brand { min-width: 0; }
+      .brand span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      header .nav-tabs { display: none; }
+      .header-actions { margin-left: auto; gap: 6px !important; }
+      .header-action-label { display: none; }
+      .header-actions button { width: 44px; height: 44px; min-height: 44px; padding: 0 !important; border-radius: 10px; }
+      main { padding: 16px 12px calc(40px + env(safe-area-inset-bottom)); gap: 16px; }
+      .category-filter-wrap { margin-inline: -12px; }
+      .category-filter { padding-inline: 12px; }
+      .person-card { padding: 16px; min-height: 164px; }
+      .person-card:hover { transform: none; }
+      .modal-backdrop { padding: 0; align-items: stretch; overflow: hidden; }
+      .modal-backdrop.active .modal-sheet { animation: slide-in .25s cubic-bezier(.2,.8,.2,1); }
+      .modal-sheet { width: 100%; max-width: none; height: 100dvh; max-height: none; border: 0; border-radius: 0; padding: calc(14px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)); gap: 14px; }
+      .modal-header { position: sticky; top: calc(-14px - env(safe-area-inset-top)); z-index: 4; margin: calc(-14px - env(safe-area-inset-top)) -12px 0; padding: calc(12px + env(safe-area-inset-top)) 12px 12px; background: rgba(17,23,38,.97); backdrop-filter: blur(12px); }
+      .modal-header .btn-secondary { min-width: 44px !important; height: 44px; }
+      .modal-actions { position: sticky; bottom: calc(-12px - env(safe-area-inset-bottom)); z-index: 4; margin: 0 -12px calc(-12px - env(safe-area-inset-bottom)); padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(17,23,38,.97); backdrop-filter: blur(12px); gap: 8px; }
+      .modal-actions > div { flex: 1; }
+      .modal-actions button { min-height: 46px; }
+      .modal-actions > div button { flex: 1; }
+      textarea { min-height: 104px; }
+      @keyframes slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
     }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
@@ -213,16 +274,30 @@
         <button class="nav-tab" data-category="acquaintances"><svg class="icon icon-sm"><use href="#i-users"/></svg> Acquaintances</button>
       </div>
 
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <button class="btn-primary" id="btn-new-person"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Add Person</button>
-        <button class="btn-secondary" id="btn-export-backup" title="Export Backup (.json)"><svg class="icon icon-sm"><use href="#i-download"/></svg> Export</button>
-        <button class="btn-secondary" id="btn-import-backup-trigger" title="Restore Backup"><svg class="icon icon-sm"><use href="#i-upload"/></svg> Import</button>
+      <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-primary" id="btn-new-person" aria-label="Add person"><svg class="icon icon-sm"><use href="#i-plus"/></svg> <span class="header-action-label">Add Person</span></button>
+        <button class="btn-secondary" id="btn-export-backup" title="Export Backup (.json)" aria-label="Export backup"><svg class="icon icon-sm"><use href="#i-download"/></svg> <span class="header-action-label">Export</span></button>
+        <button class="btn-secondary" id="btn-import-backup-trigger" title="Restore Backup" aria-label="Import backup"><svg class="icon icon-sm"><use href="#i-upload"/></svg> <span class="header-action-label">Import</span></button>
         <input type="file" id="backup-file-input" accept=".json" hidden />
-        <button class="btn-secondary" id="btn-lock-app" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg> Lock</button>
+        <button class="btn-secondary" id="btn-lock-app" aria-label="Lock application" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg> <span class="header-action-label">Lock</span></button>
       </div>
     </header>
 
     <main>
+      <div>
+        <div class="filter-label">Filter by category</div>
+        <div class="category-filter-wrap">
+          <div class="category-filter" id="category-filter" role="toolbar" aria-label="Contact categories">
+            <button class="category-pill active" type="button" data-category="all" aria-pressed="true">All <span class="category-count">0</span></button>
+            <button class="category-pill" type="button" data-category="work" aria-pressed="false">Work <span class="category-count">0</span></button>
+            <button class="category-pill" type="button" data-category="personal" aria-pressed="false">Personal <span class="category-count">0</span></button>
+            <button class="category-pill" type="button" data-category="friendships" aria-pressed="false">Friendships <span class="category-count">0</span></button>
+            <button class="category-pill" type="button" data-category="family" aria-pressed="false">Family <span class="category-count">0</span></button>
+            <button class="category-pill" type="button" data-category="acquaintances" aria-pressed="false">Acquaintances <span class="category-count">0</span></button>
+          </div>
+        </div>
+      </div>
+
       <!-- Controls Bar: Search & Counts -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div style="display: flex; align-items: center; gap: 10px; max-width: 420px; width: 100%;">
@@ -242,13 +317,13 @@
 
   <!-- Person Profile View / Edit Modal Sheet -->
   <div class="modal-backdrop" id="person-modal">
-    <div class="modal-sheet">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+    <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modal-person-heading">
+      <div class="modal-header">
         <div>
           <span class="badge badge-work" id="modal-category-badge">WORK</span>
           <div style="font-size: 1.35rem; font-weight: 850; color: var(--text-main); margin-top: 4px;" id="modal-person-heading">Person Profile</div>
         </div>
-        <button class="btn-secondary" onclick="closeModal()" style="min-width: 32px; padding: 6px;"><svg class="icon"><use href="#i-close"/></svg></button>
+        <button class="btn-secondary" onclick="closeModal()" aria-label="Close person profile" style="min-width: 32px; padding: 6px;"><svg class="icon"><use href="#i-close"/></svg></button>
       </div>
 
       <input type="hidden" id="edit-person-id" />
@@ -279,8 +354,9 @@
       </div>
 
       <!-- Tab 2: Psychology & Character Traits -->
-      <div>
-        <div class="card-title" style="margin-bottom: 10px;"><svg class="icon"><use href="#i-heart"/></svg> Psychology, Motivations &amp; Quirks</div>
+      <details class="collapsible" open>
+        <summary><svg class="icon"><use href="#i-heart"/></svg> Psychology &amp; Motivations</summary>
+        <div class="collapsible-content">
         <div class="form-grid-2">
           <div><label class="field-label">Their Motivations (What makes them tick)</label><textarea id="form-motivations" placeholder="Status, autonomy, intellectual recognition, family security..."></textarea></div>
           <div><label class="field-label">What They Want (Current Desires)</label><textarea id="form-what-they-want" placeholder="Promotion, funding, peace of mind, to learn AI..."></textarea></div>
@@ -291,11 +367,13 @@
           <label class="field-label">Important Details &amp; Quirks</label>
           <textarea id="form-quirks" placeholder="Vegetarian, hates cold weather, speaks fluent French, always checks phone at 4 PM..."></textarea>
         </div>
-      </div>
+        </div>
+      </details>
 
       <!-- Tab 3: Relationship Dynamics -->
-      <div>
-        <div class="card-title" style="margin-bottom: 10px;"><svg class="icon"><use href="#i-users"/></svg> Relationship Dynamics &amp; Shared History</div>
+      <details class="collapsible">
+        <summary><svg class="icon"><use href="#i-users"/></svg> Relationship Dynamics</summary>
+        <div class="collapsible-content">
         <div class="form-grid-2">
           <div><label class="field-label">How They Perceive Me</label><textarea id="form-perceive-me" placeholder="Sees me as the creative tech visionary, reliable partner, high-energy founder..."></textarea></div>
           <div><label class="field-label">My Goals with This Relationship</label><textarea id="form-my-goals" placeholder="Build a multi-year partnership, close joint grant, deepen personal trust..."></textarea></div>
@@ -306,11 +384,13 @@
           <label class="field-label">Talking Points &amp; Conversation Openers</label>
           <textarea id="form-talking-points" placeholder="Ask about their recent trip to Madrid; follow up on their new grant proposal; mention the new XR prototype..."></textarea>
         </div>
-      </div>
+        </div>
+      </details>
 
       <!-- Tab 4: RPG Character Influence & Strategic Levers -->
-      <div class="game-section">
-        <div class="card-title" style="color: var(--accent-gold);"><svg class="icon"><use href="#i-game"/></svg> Character Influence &amp; RPG Strategy Levers</div>
+      <details class="game-section collapsible">
+        <summary><svg class="icon"><use href="#i-game"/></svg> RPG Character Influence Levers</summary>
+        <div class="collapsible-content">
         <div class="form-grid-2">
           <div>
             <label class="field-label" style="color: #fcd34d;">Their Squeeze (Pressure Points / Urgency)</label>
@@ -332,10 +412,11 @@
             <input type="date" id="form-last-contact" />
           </div>
         </div>
-      </div>
+        </div>
+      </details>
 
       <!-- Modal Actions -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px;">
+      <div class="modal-actions">
         <button class="btn-secondary" id="btn-delete-person" style="color: var(--accent-rose);"><svg class="icon icon-sm"><use href="#i-trash"/></svg> Delete Person</button>
         <div style="display: flex; gap: 8px;">
           <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -419,6 +500,7 @@
 
     function savePeople(people) {
       localStorage.setItem("nexus_prm_people", JSON.stringify(people));
+      if (typeof updateCategoryCounts === 'function') updateCategoryCounts();
       renderPeople();
     }
 
@@ -458,21 +540,46 @@
       document.getElementById('auth-password').value = "";
     };
 
-    // Navigation & Filtering
+    // Navigation & Category Filtering (Synced for Desktop Tabs and Mobile Pills)
     let currentCategoryFilter = "all";
 
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.onclick = () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentCategoryFilter = tab.getAttribute('data-category');
-        renderPeople();
-      };
+    function setCategoryFilter(category) {
+      currentCategoryFilter = category;
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-category') === category);
+      });
+      document.querySelectorAll('.category-pill').forEach(pill => {
+        const isActive = (pill.getAttribute('data-category') === category);
+        pill.classList.toggle('active', isActive);
+        pill.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+      renderPeople();
+    }
+
+    document.querySelectorAll('.nav-tab, .category-pill').forEach(el => {
+      el.onclick = () => setCategoryFilter(el.getAttribute('data-category'));
     });
 
     document.getElementById('search-input').addEventListener('input', renderPeople);
 
+    function updateCategoryCounts() {
+      const people = getPeople();
+      const counts = { all: people.length, work: 0, personal: 0, friendships: 0, family: 0, acquaintances: 0 };
+      people.forEach(p => {
+        if (counts[p.category] !== undefined) counts[p.category]++;
+      });
+
+      document.querySelectorAll('.category-pill').forEach(pill => {
+        const cat = pill.getAttribute('data-category');
+        const countSpan = pill.querySelector('.category-count');
+        if (countSpan && counts[cat] !== undefined) {
+          countSpan.textContent = counts[cat];
+        }
+      });
+    }
+
     function initPRM() {
+      updateCategoryCounts();
       renderPeople();
     }
 
