@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nexus Life PRM — Personal Relationship Management System</title>
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --card-bg: #111726;
+      --card-border: #1e293b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-light: #1e1b4b;
+      --accent-emerald: #10b981;
+      --accent-gold: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+      --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.6);
+    }
+
+    * { box-sizing: border-box; }
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background-color: var(--bg-main); color: var(--text-main);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px; line-height: 1.55; letter-spacing: -0.005em;
+      overflow-x: hidden;
+    }
+
+    /* SVG Icons */
+    .icon { width: 18px; height: 18px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-sm { width: 14px; height: 14px; }
+    .icon-lg { width: 26px; height: 26px; }
+
+    /* Top Navigation Header */
+    header {
+      background: #0d1322; border-bottom: 1px solid var(--card-border);
+      padding: 0 clamp(16px, 3vw, 28px); display: flex; justify-content: space-between;
+      align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 1000;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand { font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; color: white; background: var(--primary); border-radius: 7px; }
+
+    /* Nav Tabs */
+    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+    .nav-tab {
+      background: transparent; border: none; border-bottom: 2px solid transparent; padding: 16px 12px; font-weight: 600;
+      font-size: 0.84rem; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .nav-tab:hover { color: var(--text-main); }
+    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 750; }
+
+    /* Main Container */
+    main {
+      max-width: 1240px; margin: 0 auto; padding: 24px clamp(14px, 3vw, 28px) 64px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .card-title { font-size: 1.08rem; font-weight: 750; color: var(--text-main); display: flex; align-items: center; gap: 9px; }
+
+    /* Buttons */
+    button.btn-primary {
+      background: var(--primary); color: #ffffff; font-weight: 650;
+      border: 1px solid var(--primary); border-radius: 7px; padding: 8px 15px; font-size: 0.86rem;
+      min-height: 38px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 7px; transition: all 0.15s ease;
+    }
+    button.btn-primary:hover { background: var(--primary-hover); }
+
+    button.btn-secondary {
+      background: #1e293b; color: var(--text-main); border: 1px solid var(--card-border);
+      border-radius: 7px; padding: 8px 14px; font-size: 0.84rem; font-weight: 600;
+      min-height: 38px; cursor: pointer; display: inline-flex; align-items: center;
+      justify-content: center; gap: 6px; transition: all 0.15s ease;
+    }
+    button.btn-secondary:hover { background: #334155; }
+
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; background: #0b0f19;
+      border: 1px solid var(--card-border); color: var(--text-main);
+      border-radius: 7px; font-size: 14px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+
+    /* Badges */
+    .badge {
+      padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 750;
+      letter-spacing: 0.04em; display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase;
+    }
+    .badge-work { background: #1e1b4b; color: #a5b4fc; border: 1px solid #3730a3; }
+    .badge-personal { background: #064e3b; color: #6ee7b7; border: 1px solid #047857; }
+    .badge-friendships { background: #451a03; color: #fcd34d; border: 1px solid #78350f; }
+    .badge-family { background: #4c0519; color: #fda4af; border: 1px solid #881337; }
+    .badge-acquaintances { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
+
+    /* People Grid */
+    .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .person-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
+      padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .person-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .person-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .person-name { font-weight: 800; font-size: 1.05rem; color: var(--text-main); }
+    .person-role { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* RPG Stat Meter */
+    .meter-bar { height: 6px; background: #1e293b; border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .meter-fill { height: 100%; border-radius: inherit; }
+
+    /* Modal Sheet */
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75); display: none; justify-content: center;
+      align-items: center; z-index: 9999; padding: 16px; overflow-y: auto;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-sheet {
+      background: #111726; border: 1px solid var(--card-border); border-radius: 14px;
+      max-width: 840px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 26px;
+      display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow-lg);
+    }
+
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-label { font-size: 0.76rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
+    .game-section { background: #0b0f19; border: 1px solid #312e81; border-radius: 9px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    @media (max-width: 768px) {
+      .people-grid { grid-template-columns: 1fr; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+      header { padding: 0 14px; }
+      main { padding: 16px 12px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG Sprite -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+      <symbol id="i-work" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+      <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+      <symbol id="i-game" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- Login Gate -->
+  <div id="auth-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #060911; display: flex; justify-content: center; align-items: center; z-index: 999999; padding: 20px;">
+    <div style="background: #111726; border: 1px solid var(--card-border); border-radius: 14px; max-width: 400px; width: 100%; text-align: center; padding: 36px 26px; box-shadow: var(--shadow-lg);">
+      <div style="width: 46px; height: 46px; background: var(--primary-light); color: var(--primary); border-radius: 10px; display: grid; place-items: center; margin: 0 auto 14px; border: 1px solid #3730a3;">
+        <svg class="icon icon-lg"><use href="#i-lock"/></svg>
+      </div>
+      <div style="font-size: 1.35rem; font-weight: 850; color: var(--text-main);">Nexus Life PRM</div>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 6px 0 18px 0;">Personal Relationship &amp; Strategic Alignment System</p>
+      
+      <div style="text-align: left; margin-bottom: 12px;">
+        <label class="field-label">Account</label>
+        <input type="text" id="auth-email" value="andrew@arclightxr.com" readonly style="background: #0b0f19; color: var(--text-muted); cursor: not-allowed;" />
+      </div>
+
+      <div style="text-align: left; margin-bottom: 16px;">
+        <label class="field-label">Passcode</label>
+        <input type="password" id="auth-password" placeholder="Enter security passcode..." autocomplete="off" />
+        <div id="auth-error" style="color: var(--accent-rose); font-size: 0.8rem; font-weight: 700; display: none; margin-top: 4px;">Invalid Passcode</div>
+      </div>
+
+      <button class="btn-primary" id="btn-login" style="width: 100%;">Unlock Life PRM</button>
+    </div>
+  </div>
+
+  <!-- Main Application Shell -->
+  <div id="app-shell" style="display: none; flex-direction: column; min-height: 100vh;">
+    <!-- Top Navigation Header -->
+    <header>
+      <div class="brand">
+        <span class="brand-mark"><svg class="icon"><use href="#i-user"/></svg></span>
+        <span>Nexus Life PRM</span>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-category="all"><svg class="icon icon-sm"><use href="#i-globe"/></svg> All Contacts</button>
+        <button class="nav-tab" data-category="work"><svg class="icon icon-sm"><use href="#i-work"/></svg> Work</button>
+        <button class="nav-tab" data-category="personal"><svg class="icon icon-sm"><use href="#i-user"/></svg> Personal</button>
+        <button class="nav-tab" data-category="friendships"><svg class="icon icon-sm"><use href="#i-heart"/></svg> Friendships</button>
+        <button class="nav-tab" data-category="family"><svg class="icon icon-sm"><use href="#i-home"/></svg> Family</button>
+        <button class="nav-tab" data-category="acquaintances"><svg class="icon icon-sm"><use href="#i-users"/></svg> Acquaintances</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-primary" id="btn-new-person"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Add Person</button>
+        <button class="btn-secondary" id="btn-export-backup" title="Export Backup (.json)"><svg class="icon icon-sm"><use href="#i-download"/></svg> Export</button>
+        <button class="btn-secondary" id="btn-import-backup-trigger" title="Restore Backup"><svg class="icon icon-sm"><use href="#i-upload"/></svg> Import</button>
+        <input type="file" id="backup-file-input" accept=".json" hidden />
+        <button class="btn-secondary" id="btn-lock-app" style="padding: 4px 8px; font-size: 0.78rem;"><svg class="icon icon-sm"><use href="#i-lock"/></svg> Lock</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Controls Bar: Search & Counts -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px; max-width: 420px; width: 100%;">
+          <input type="text" id="search-input" placeholder="Search by name, tags, motivations, or quirks..." style="background: #111726;" />
+        </div>
+        <div style="font-size: 0.84rem; color: var(--text-muted);" id="contact-count-label">
+          Showing 0 connections
+        </div>
+      </div>
+
+      <!-- People Grid -->
+      <div class="people-grid" id="people-grid">
+        <!-- Dynamically rendered person cards -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Person Profile View / Edit Modal Sheet -->
+  <div class="modal-backdrop" id="person-modal">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+        <div>
+          <span class="badge badge-work" id="modal-category-badge">WORK</span>
+          <div style="font-size: 1.35rem; font-weight: 850; color: var(--text-main); margin-top: 4px;" id="modal-person-heading">Person Profile</div>
+        </div>
+        <button class="btn-secondary" onclick="closeModal()" style="min-width: 32px; padding: 6px;"><svg class="icon"><use href="#i-close"/></svg></button>
+      </div>
+
+      <input type="hidden" id="edit-person-id" />
+
+      <!-- Tab 1: Fundamentals -->
+      <div>
+        <div class="card-title" style="margin-bottom: 10px;"><svg class="icon"><use href="#i-user"/></svg> Core Identity &amp; Background</div>
+        <div class="form-grid-2">
+          <div><label class="field-label">Full Name</label><input type="text" id="form-name" required /></div>
+          <div><label class="field-label">Category</label>
+            <select id="form-category">
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="friendships">Friendships</option>
+              <option value="family">Family</option>
+              <option value="acquaintances">Acquaintances</option>
+            </select>
+          </div>
+          <div><label class="field-label">Birthday / Age</label><input type="text" id="form-birthday" placeholder="e.g. October 14 / 32" /></div>
+          <div><label class="field-label">How I Know Them</label><input type="text" id="form-how-know" placeholder="e.g. Colleague at NYU / Investor / Childhood friend" /></div>
+          <div><label class="field-label">How We Met</label><input type="text" id="form-how-met" placeholder="e.g. Fulbright orientation in Tunis, 2023" /></div>
+          <div><label class="field-label">Family &amp; Inner Circle</label><input type="text" id="form-family" placeholder="e.g. Married to Sarah; 2 daughters; close with brother" /></div>
+        </div>
+        <div style="margin-top: 10px;">
+          <label class="field-label">Background &amp; History</label>
+          <textarea id="form-background" placeholder="Career trajectory, education, life events, where they grew up..."></textarea>
+        </div>
+      </div>
+
+      <!-- Tab 2: Psychology & Character Traits -->
+      <div>
+        <div class="card-title" style="margin-bottom: 10px;"><svg class="icon"><use href="#i-heart"/></svg> Psychology, Motivations &amp; Quirks</div>
+        <div class="form-grid-2">
+          <div><label class="field-label">Their Motivations (What makes them tick)</label><textarea id="form-motivations" placeholder="Status, autonomy, intellectual recognition, family security..."></textarea></div>
+          <div><label class="field-label">What They Want (Current Desires)</label><textarea id="form-what-they-want" placeholder="Promotion, funding, peace of mind, to learn AI..."></textarea></div>
+          <div><label class="field-label">Personality Type &amp; Core Traits</label><textarea id="form-personality" placeholder="e.g. INTJ / Enneagram 3w4. Analytical, impatient with bureaucracy, loyal..."></textarea></div>
+          <div><label class="field-label">Likes &amp; Dislikes</label><textarea id="form-likes-dislikes" placeholder="Likes: Directness, espresso, architecture. Dislikes: Small talk, tardiness..."></textarea></div>
+        </div>
+        <div style="margin-top: 10px;">
+          <label class="field-label">Important Details &amp; Quirks</label>
+          <textarea id="form-quirks" placeholder="Vegetarian, hates cold weather, speaks fluent French, always checks phone at 4 PM..."></textarea>
+        </div>
+      </div>
+
+      <!-- Tab 3: Relationship Dynamics -->
+      <div>
+        <div class="card-title" style="margin-bottom: 10px;"><svg class="icon"><use href="#i-users"/></svg> Relationship Dynamics &amp; Shared History</div>
+        <div class="form-grid-2">
+          <div><label class="field-label">How They Perceive Me</label><textarea id="form-perceive-me" placeholder="Sees me as the creative tech visionary, reliable partner, high-energy founder..."></textarea></div>
+          <div><label class="field-label">My Goals with This Relationship</label><textarea id="form-my-goals" placeholder="Build a multi-year partnership, close joint grant, deepen personal trust..."></textarea></div>
+          <div><label class="field-label">Shared Chronology &amp; Key Milestones</label><textarea id="form-chronology" placeholder="Key shared moments: Co-taught workshop in Tunis; launched pilot; crisis we solved together..."></textarea></div>
+          <div><label class="field-label">Upcoming Events &amp; Shared Plans</label><textarea id="form-upcoming" placeholder="Coffee next Tuesday, dinner in October, conference in Miami..."></textarea></div>
+        </div>
+        <div style="margin-top: 10px;">
+          <label class="field-label">Talking Points &amp; Conversation Openers</label>
+          <textarea id="form-talking-points" placeholder="Ask about their recent trip to Madrid; follow up on their new grant proposal; mention the new XR prototype..."></textarea>
+        </div>
+      </div>
+
+      <!-- Tab 4: RPG Character Influence & Strategic Levers -->
+      <div class="game-section">
+        <div class="card-title" style="color: var(--accent-gold);"><svg class="icon"><use href="#i-game"/></svg> Character Influence &amp; RPG Strategy Levers</div>
+        <div class="form-grid-2">
+          <div>
+            <label class="field-label" style="color: #fcd34d;">Their Squeeze (Pressure Points / Urgency)</label>
+            <textarea id="form-squeeze" style="background: #111726; border-color: #4338ca;" placeholder="Under pressure from dean about departmental budget; worried about layoffs; needs a quick win..."></textarea>
+          </div>
+          <div>
+            <label class="field-label" style="color: #fcd34d;">Influence Strategy (RPG Dialogue Tree)</label>
+            <textarea id="form-influence" style="background: #111726; border-color: #4338ca;" placeholder="If this were a game: Lead with intellectual respect; offer a solution that reduces their admin burden; never corner them publicly; frame collaborations as their victory..."></textarea>
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div>
+            <label class="field-label">Affinity / Trust Level (1 to 10)</label>
+            <input type="range" id="form-affinity" min="1" max="10" value="7" oninput="document.getElementById('affinity-val').textContent = this.value" />
+            <div style="font-size: 0.8rem; color: var(--accent-emerald); font-weight: 700;">Affinity Rating: <span id="affinity-val">7</span> / 10</div>
+          </div>
+          <div>
+            <label class="field-label">Last Spoke (Touchpoint Recency)</label>
+            <input type="date" id="form-last-contact" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--card-border); padding-top: 14px;">
+        <button class="btn-secondary" id="btn-delete-person" style="color: var(--accent-rose);"><svg class="icon icon-sm"><use href="#i-trash"/></svg> Delete Person</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn-primary" id="btn-save-person">Save Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Security Passcode Hash
+    // Will lock strictly to user's exact hash once provided
+    let TARGET_AUTH_EMAIL = "andrew@arclightxr.com";
+
+    // Initial Seed Data
+    const SAMPLE_PEOPLE = [
+      {
+        id: "p_karim",
+        name: "Karim",
+        category: "work",
+        birthday: "March 12",
+        howKnow: "Colleague from Tunis (Fulbright scholar)",
+        howMet: "Fulbright academic orientation in Tunis",
+        family: "Wife and young son in Tunis",
+        background: "Professor and senior researcher in educational technology; deeply connected to higher-ed institutions across North Africa.",
+        motivations: "Academic prestige, international collaboration, expanding pedagogical innovation for his students.",
+        whatTheyWant: "Wants to co-author papers and establish joint funded projects with US universities.",
+        personality: "Enneagram 1. Methodical, courteous, deeply values formal protocol and respect.",
+        likesDislikes: "Likes: Punctuality, thoughtful intellectual proposals. Dislikes: Rushed meetings, flakiness.",
+        quirks: "Always replies late at night; loves specialty Tunisian olive oil.",
+        perceiveMe: "Sees Andrew as an energetic, innovative American technologist with high creative drive.",
+        myGoals: "Build a lasting trans-Atlantic partnership on AI and XR in higher education.",
+        chronology: "Co-taught workshop in Tunis 2023; reconnecting in 2026 after NYU restructuring.",
+        upcoming: "Schedule virtual coffee call to brainstorm initial joint project proposal.",
+        talkingPoints: "Ask how faculty transition is going in Tunis; share progress on AI tutoring platforms.",
+        squeeze: "Faculty department budget constraints; needs international grant backing to legitimize new initiatives.",
+        influence: "Offer concrete turn-key technology prototypes that require zero engineering on his side; frame proposals as peer co-authorship.",
+        affinity: 8,
+        lastContact: "2026-08-10"
+      },
+      {
+        id: "p_wendy",
+        name: "Wendy",
+        category: "work",
+        birthday: "September 4",
+        howKnow: "Licensing & commercial business contact",
+        howMet: "Industry symposium on digital intellectual property",
+        family: "Based in New York",
+        background: "Experienced IP licensing executive and contract negotiator.",
+        motivations: "Clear financial terms, risk reduction, reliable execution.",
+        whatTheyWant: "Finalized invoice payments and clear terms for software licensing rights.",
+        personality: "ESTJ. Direct, bottom-line focused, values prompt communication.",
+        likesDislikes: "Likes: Bullet points, clean balance sheets. Dislikes: Unclear financial timelines.",
+        quirks: "Prefers morning phone calls over long email threads.",
+        perceiveMe: "Resourceful founder who moves fast.",
+        myGoals: "Collect remaining monies owed on invoice and establish clean licensing terms.",
+        chronology: "Signed initial agreement in spring; deliverable submitted; invoice pending.",
+        upcoming: "Send remaining invoice; propose 3 dates for licensing call.",
+        talkingPoints: "Clarify timeline for payment processing; present standard licensing schedule.",
+        squeeze: "Fiscal quarter-end reporting deadlines; needs all outstanding invoices reconciled.",
+        influence: "Make the invoice and dates effortless to approve; give clear choices rather than open-ended questions.",
+        affinity: 7,
+        lastContact: "2026-08-05"
+      }
+    ];
+
+    function getPeople() {
+      try {
+        const stored = localStorage.getItem("nexus_prm_people");
+        if (stored) return JSON.parse(stored);
+      } catch(e) {}
+      return SAMPLE_PEOPLE;
+    }
+
+    function savePeople(people) {
+      localStorage.setItem("nexus_prm_people", JSON.stringify(people));
+      renderPeople();
+    }
+
+    // Auth Unlock Logic
+    document.getElementById('btn-login').onclick = unlockApp;
+    document.getElementById('auth-password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); unlockApp(); }
+    });
+
+    function unlockApp() {
+      const pass = document.getElementById('auth-password').value.trim();
+      const err = document.getElementById('auth-error');
+
+      // Accepts user's password or temporary unlock until exact hash is locked in next turn
+      if (pass.length > 0) {
+        err.style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-shell').style.display = 'flex';
+        sessionStorage.setItem('nexus_prm_auth', 'unlocked');
+        initPRM();
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    document.getElementById('btn-lock-app').onclick = () => {
+      sessionStorage.removeItem('nexus_prm_auth');
+      document.getElementById('app-shell').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('auth-password').value = "";
+    };
+
+    // Navigation & Filtering
+    let currentCategoryFilter = "all";
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentCategoryFilter = tab.getAttribute('data-category');
+        renderPeople();
+      };
+    });
+
+    document.getElementById('search-input').addEventListener('input', renderPeople);
+
+    function initPRM() {
+      renderPeople();
+    }
+
+    function renderPeople() {
+      const people = getPeople();
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      const container = document.getElementById('people-grid');
+      container.innerHTML = "";
+
+      const filtered = people.filter(p => {
+        const matchesCategory = (currentCategoryFilter === 'all') || (p.category === currentCategoryFilter);
+        const textBlob = `${p.name} ${p.howKnow} ${p.motivations} ${p.quirks} ${p.background} ${p.personality}`.toLowerCase();
+        const matchesSearch = !query || textBlob.includes(query);
+        return matchesCategory && matchesSearch;
+      });
+
+      document.getElementById('contact-count-label').textContent = `Showing ${filtered.length} connection${filtered.length === 1 ? '' : 's'}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="card" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">No connections found in this category. Click "+ Add Person" to create one.</div>`;
+        return;
+      }
+
+      filtered.forEach(p => {
+        const affinityPercent = (p.affinity || 5) * 10;
+        const badgeClass = `badge-${p.category}`;
+
+        const card = document.createElement('div');
+        card.className = 'person-card';
+        card.onclick = () => openPersonModal(p.id);
+
+        card.innerHTML = `
+          <div class="person-header">
+            <div>
+              <div class="person-name">${escapeHtml(p.name)}</div>
+              <div class="person-role">${escapeHtml(p.howKnow || 'Contact')}</div>
+            </div>
+            <span class="badge ${badgeClass}">${escapeHtml(p.category)}</span>
+          </div>
+
+          <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">
+            ${p.motivations ? `<strong>Motivation:</strong> ${escapeHtml(p.motivations.slice(0, 95))}...` : 'No motivation noted.'}
+          </div>
+
+          <div style="margin-top: auto; border-top: 1px solid #1e293b; padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 750;">
+              <span style="color: var(--accent-gold);">AFFINITY LEVEL</span>
+              <span style="color: var(--accent-emerald);">${p.affinity || 5} / 10</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill" style="width: ${affinityPercent}%; background: ${affinityPercent > 70 ? 'var(--accent-emerald)' : affinityPercent > 40 ? 'var(--accent-gold)' : 'var(--accent-rose)'};"></div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Modal Sheet Handlers
+    function openPersonModal(personId) {
+      const people = getPeople();
+      const p = people.find(item => item.id === personId);
+      if (!p) return;
+
+      document.getElementById('edit-person-id').value = p.id;
+      document.getElementById('modal-person-heading').textContent = p.name;
+      document.getElementById('modal-category-badge').textContent = p.category.toUpperCase();
+      document.getElementById('modal-category-badge').className = `badge badge-${p.category}`;
+
+      document.getElementById('form-name').value = p.name || "";
+      document.getElementById('form-category').value = p.category || "work";
+      document.getElementById('form-birthday').value = p.birthday || "";
+      document.getElementById('form-how-know').value = p.howKnow || "";
+      document.getElementById('form-how-met').value = p.howMet || "";
+      document.getElementById('form-family').value = p.family || "";
+      document.getElementById('form-background').value = p.background || "";
+
+      document.getElementById('form-motivations').value = p.motivations || "";
+      document.getElementById('form-what-they-want').value = p.whatTheyWant || "";
+      document.getElementById('form-personality').value = p.personality || "";
+      document.getElementById('form-likes-dislikes').value = p.likesDislikes || "";
+      document.getElementById('form-quirks').value = p.quirks || "";
+
+      document.getElementById('form-perceive-me').value = p.perceiveMe || "";
+      document.getElementById('form-my-goals').value = p.myGoals || "";
+      document.getElementById('form-chronology').value = p.chronology || "";
+      document.getElementById('form-upcoming').value = p.upcoming || "";
+      document.getElementById('form-talking-points').value = p.talkingPoints || "";
+
+      document.getElementById('form-squeeze').value = p.squeeze || "";
+      document.getElementById('form-influence').value = p.influence || "";
+      document.getElementById('form-affinity').value = p.affinity || 5;
+      document.getElementById('affinity-val').textContent = p.affinity || 5;
+      document.getElementById('form-last-contact').value = p.lastContact || "";
+
+      document.getElementById('btn-delete-person').style.display = "inline-flex";
+      document.getElementById('person-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('person-modal').classList.remove('active');
+    }
+
+    // Add New Person
+    document.getElementById('btn-new-person').onclick = () => {
+      document.getElementById('edit-person-id').value = "";
+      document.getElementById('modal-person-heading').textContent = "Add New Connection";
+      document.getElementById('modal-category-badge').textContent = "NEW";
+      document.getElementById('modal-category-badge').className = "badge badge-personal";
+
+      ['form-name', 'form-birthday', 'form-how-know', 'form-how-met', 'form-family', 'form-background',
+       'form-motivations', 'form-what-they-want', 'form-personality', 'form-likes-dislikes', 'form-quirks',
+       'form-perceive-me', 'form-my-goals', 'form-chronology', 'form-upcoming', 'form-talking-points',
+       'form-squeeze', 'form-influence', 'form-last-contact'].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+
+      document.getElementById('form-category').value = currentCategoryFilter !== 'all' ? currentCategoryFilter : 'work';
+      document.getElementById('form-affinity').value = 5;
+      document.getElementById('affinity-val').textContent = "5";
+      document.getElementById('btn-delete-person').style.display = "none";
+      document.getElementById('person-modal').classList.add('active');
+      document.getElementById('form-name').focus();
+    };
+
+    // Save Person
+    document.getElementById('btn-save-person').onclick = () => {
+      const name = document.getElementById('form-name').value.trim();
+      if (!name) return alert("Please enter a name.");
+
+      const people = getPeople();
+      const editId = document.getElementById('edit-person-id').value;
+
+      const personData = {
+        id: editId || `p_${Date.now()}`,
+        name: name,
+        category: document.getElementById('form-category').value,
+        birthday: document.getElementById('form-birthday').value.trim(),
+        howKnow: document.getElementById('form-how-know').value.trim(),
+        howMet: document.getElementById('form-how-met').value.trim(),
+        family: document.getElementById('form-family').value.trim(),
+        background: document.getElementById('form-background').value.trim(),
+        motivations: document.getElementById('form-motivations').value.trim(),
+        whatTheyWant: document.getElementById('form-what-they-want').value.trim(),
+        personality: document.getElementById('form-personality').value.trim(),
+        likesDislikes: document.getElementById('form-likes-dislikes').value.trim(),
+        quirks: document.getElementById('form-quirks').value.trim(),
+        perceiveMe: document.getElementById('form-perceive-me').value.trim(),
+        myGoals: document.getElementById('form-my-goals').value.trim(),
+        chronology: document.getElementById('form-chronology').value.trim(),
+        upcoming: document.getElementById('form-upcoming').value.trim(),
+        talkingPoints: document.getElementById('form-talking-points').value.trim(),
+        squeeze: document.getElementById('form-squeeze').value.trim(),
+        influence: document.getElementById('form-influence').value.trim(),
+        affinity: parseInt(document.getElementById('form-affinity').value, 10) || 5,
+        lastContact: document.getElementById('form-last-contact').value
+      };
+
+      if (editId) {
+        const idx = people.findIndex(p => p.id === editId);
+        if (idx !== -1) people[idx] = personData;
+      } else {
+        people.unshift(personData);
+      }
+
+      savePeople(people);
+      closeModal();
+    };
+
+    // Delete Person
+    document.getElementById('btn-delete-person').onclick = () => {
+      const editId = document.getElementById('edit-person-id').value;
+      if (!editId) return;
+      if (!confirm("Are you sure you want to delete this profile?")) return;
+
+      let people = getPeople();
+      people = people.filter(p => p.id !== editId);
+      savePeople(people);
+      closeModal();
+    };
+
+    // Backup & Restore
+    document.getElementById('btn-export-backup').onclick = () => {
+      const data = {
+        format: "nexus-prm-backup",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        owner: TARGET_AUTH_EMAIL,
+        people: getPeople()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Nexus_Life_PRM_Backup_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('btn-import-backup-trigger').onclick = () => {
+      document.getElementById('backup-file-input').click();
+    };
+
+    document.getElementById('backup-file-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data.people && Array.isArray(data.people)) {
+          savePeople(data.people);
+          alert("Life PRM database imported successfully!");
+        }
+      } catch(err) {
+        alert("Invalid backup file.");
+      }
+    });
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[c]));
+    }
+
+    // Auto-restore session
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('nexus_prm_auth') === 'unlocked') {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-shell').style.display = 'flex';
+        initPRM();
+      }
+    });
+  </script>
+</body>
+</html>
