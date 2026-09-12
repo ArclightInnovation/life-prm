@@ -179,12 +179,44 @@
     .game-section.collapsible > summary { color: var(--accent-gold); }
 
     .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1.1fr 1fr 0.95fr; gap: 12px; }
     .field-label { font-size: 0.76rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
     .game-section { background: #0b0f19; border: 1px solid #312e81; border-radius: 9px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* Network & Sphere of Influence — modal editor */
+    .network-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .network-hint { font-size: 0.78rem; color: var(--text-muted); max-width: 460px; }
+    .network-list { display: flex; flex-direction: column; gap: 12px; }
+    .network-empty { color: var(--text-muted); font-size: 0.84rem; text-align: center; padding: 18px 14px; border: 1px dashed var(--card-border); border-radius: 9px; }
+    .network-row { background: #0b0f19; border: 1px solid var(--card-border); border-radius: 10px; padding: 13px; display: flex; flex-direction: column; gap: 11px; }
+    .network-row-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .network-row-index { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); display: inline-flex; align-items: center; gap: 7px; }
+    .btn-icon {
+      background: transparent; border: 1px solid var(--card-border); color: var(--text-muted);
+      border-radius: 7px; min-width: 38px; min-height: 38px; display: inline-grid; place-items: center;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .btn-icon:hover { color: var(--accent-rose); border-color: var(--accent-rose); background: #190b12; }
+    .tie-badge { padding: 3px 9px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.045em; text-transform: uppercase; border: 1px solid currentColor; }
+    .tie-dots { display: inline-flex; align-items: center; gap: 3px; }
+    .tie-dot { width: 7px; height: 7px; border-radius: 50%; background: #1e293b; }
+
+    /* Network & Sphere of Influence — person card preview */
+    .net-preview { border-top: 1px solid #1e293b; padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .net-preview-head { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    .net-preview-count { min-width: 20px; height: 18px; padding: 0 6px; border-radius: 999px; background: #1e293b; color: #cbd5e1; display: grid; place-items: center; font-size: 0.66rem; font-variant-numeric: tabular-nums; }
+    .net-entry { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .net-entry-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 0.8rem; }
+    .net-entry-name { font-weight: 750; color: var(--text-main); }
+    .net-entry-relation { font-size: 0.76rem; color: var(--text-muted); }
+    .net-entry-impact { font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; }
+    .net-more { font-size: 0.74rem; font-weight: 700; color: var(--text-muted); }
 
     @media (max-width: 768px) {
       .people-grid { grid-template-columns: 1fr; }
       .form-grid-2 { grid-template-columns: 1fr; }
+      .form-grid-3 { grid-template-columns: 1fr; }
+      .network-row { padding: 12px; }
       header { min-height: calc(58px + env(safe-area-inset-top)); padding-inline: 12px; gap: 10px; }
       .brand { min-width: 0; }
       .brand span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -231,6 +263,8 @@
       <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
       <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7M10 11v6M14 11v6"/></symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+      <symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.6"/><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="18" r="2.6"/><path d="M10.4 7.1 6.3 15.7M13.6 7.1l4.1 8.6M7.6 18h8.8"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3A5 5 0 0 0 13.5 3.5l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3A5 5 0 0 0 10.5 20.5l1.7-1.7"/></symbol>
     </defs>
   </svg>
 
@@ -389,7 +423,44 @@
         </div>
       </details>
 
-      <!-- Tab 4: RPG Character Influence & Strategic Levers -->
+      <!-- Tab 4: Network & Sphere of Influence -->
+      <details class="collapsible" id="network-section">
+        <summary>
+          <svg class="icon"><use href="#i-network"/></svg> Network &amp; Sphere of Influence
+          <span class="category-count" id="network-count" style="margin-left: 2px;">0</span>
+        </summary>
+        <div class="collapsible-content">
+          <div class="network-toolbar">
+            <div class="network-hint">Map the people around them &mdash; who they answer to, lean on, or compete with &mdash; and how each one bends their decisions.</div>
+            <button type="button" class="btn-secondary" id="btn-add-connection"><svg class="icon icon-sm"><use href="#i-plus"/></svg> Add Connection</button>
+          </div>
+          <div class="network-list" id="network-list"></div>
+        </div>
+      </details>
+
+      <datalist id="relation-types">
+        <option value="Spouse / Partner"></option>
+        <option value="Parent"></option>
+        <option value="Child"></option>
+        <option value="Sibling"></option>
+        <option value="Close Friend"></option>
+        <option value="Boss / Manager"></option>
+        <option value="Direct Report"></option>
+        <option value="Colleague"></option>
+        <option value="Mentor"></option>
+        <option value="Mentee"></option>
+        <option value="Business Partner"></option>
+        <option value="Investor / Funder"></option>
+        <option value="Client"></option>
+        <option value="Gatekeeper / Assistant"></option>
+        <option value="Advisor"></option>
+        <option value="Rival / Competitor"></option>
+        <option value="Former Partner"></option>
+        <option value="Neighbor"></option>
+      </datalist>
+      <datalist id="prm-people-names"></datalist>
+
+      <!-- Tab 5: RPG Character Influence & Strategic Levers -->
       <details class="game-section collapsible">
         <summary><svg class="icon"><use href="#i-game"/></svg> RPG Character Influence Levers</summary>
         <div class="collapsible-content">
@@ -464,7 +535,33 @@
         squeeze: "Faculty department budget constraints; needs international grant backing to legitimize new initiatives.",
         influence: "Offer concrete turn-key technology prototypes that require zero engineering on his side; frame proposals as peer co-authorship.",
         affinity: 8,
-        lastContact: "2026-08-10"
+        lastContact: "2026-08-10",
+        network: [
+          {
+            id: "n_karim_leila",
+            name: "Leila",
+            relation: "Spouse / Partner",
+            closeness: 5,
+            decisionImpact: "Any travel or relocation decision goes through her first. He will not commit to multi-week trips abroad without her sign-off.",
+            notes: "Ask after the family before business. Scheduling that respects school terms wins goodwill."
+          },
+          {
+            id: "n_karim_dean",
+            name: "Dean Bouazizi",
+            relation: "Boss / Manager",
+            closeness: 3,
+            decisionImpact: "Controls the departmental budget and must approve any external collaboration; Karim frames every proposal as something that makes the dean look good.",
+            notes: "Give Karim a one-page version he can forward upward without editing."
+          },
+          {
+            id: "n_karim_sami",
+            name: "Prof. Sami",
+            relation: "Rival / Competitor",
+            closeness: 2,
+            decisionImpact: "Competes for the same internal grant pool, which pushes Karim to move faster on anything with international prestige attached.",
+            notes: "Never mention Sami's projects approvingly. Speed and exclusivity are real motivators here."
+          }
+        ]
       },
       {
         id: "p_wendy",
@@ -488,20 +585,87 @@
         squeeze: "Fiscal quarter-end reporting deadlines; needs all outstanding invoices reconciled.",
         influence: "Make the invoice and dates effortless to approve; give clear choices rather than open-ended questions.",
         affinity: 7,
-        lastContact: "2026-08-05"
+        lastContact: "2026-08-05",
+        network: [
+          {
+            id: "n_wendy_cfo",
+            name: "Marcus (CFO)",
+            relation: "Boss / Manager",
+            closeness: 4,
+            decisionImpact: "Sets the quarter-end reconciliation deadline she is measured against; anything that clears an invoice before close gets her immediate attention.",
+            notes: "Time requests to the last two weeks of the quarter for fastest movement."
+          },
+          {
+            id: "n_wendy_counsel",
+            name: "Priya (Outside Counsel)",
+            relation: "Advisor",
+            closeness: 3,
+            decisionImpact: "Reviews every licensing clause; Wendy will not verbally agree to terms until Priya has redlined them.",
+            notes: "Send contract language in editable form so it reaches counsel without a retyping round."
+          }
+        ]
       }
     ];
+
+    // ---------------------------------------------------------------------
+    // Network & Sphere of Influence
+    // Each person carries a `network` array of the people around THEM:
+    // { id, name, relation, closeness (1-5), decisionImpact, notes }
+    // ---------------------------------------------------------------------
+    const TIE_LEVELS = {
+      1: { label: 'Peripheral', color: '#94a3b8' },
+      2: { label: 'Loose Tie',  color: '#38bdf8' },
+      3: { label: 'Solid Tie',  color: '#f59e0b' },
+      4: { label: 'Strong Tie', color: '#10b981' },
+      5: { label: 'Inner Circle', color: '#a5b4fc' }
+    };
+
+    function tieLevel(value) {
+      const n = Math.min(5, Math.max(1, parseInt(value, 10) || 3));
+      return { level: n, ...TIE_LEVELS[n] };
+    }
+
+    function newConnectionId() {
+      return `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    // Accepts anything (legacy record, hand-edited backup, missing field) and
+    // returns a well-formed connection so render paths never see undefined.
+    function normalizeConnection(raw) {
+      const entry = (raw && typeof raw === 'object') ? raw : {};
+      return {
+        id: typeof entry.id === 'string' && entry.id ? entry.id : newConnectionId(),
+        name: String(entry.name || '').trim(),
+        relation: String(entry.relation || '').trim(),
+        closeness: tieLevel(entry.closeness).level,
+        decisionImpact: String(entry.decisionImpact || '').trim(),
+        notes: String(entry.notes || '').trim()
+      };
+    }
+
+    function normalizeNetwork(raw) {
+      if (!Array.isArray(raw)) return [];
+      return raw
+        .map(normalizeConnection)
+        .filter(c => c.name || c.relation || c.decisionImpact || c.notes);
+    }
+
+    function normalizePeople(people) {
+      if (!Array.isArray(people)) return [];
+      return people.map(p => ({ ...p, network: normalizeNetwork(p && p.network) }));
+    }
 
     function getPeople() {
       try {
         const stored = localStorage.getItem("nexus_prm_people");
-        if (stored) return JSON.parse(stored);
+        if (stored) return normalizePeople(JSON.parse(stored));
       } catch(e) {}
-      return SAMPLE_PEOPLE;
+      return normalizePeople(SAMPLE_PEOPLE);
     }
 
     function savePeople(people) {
-      localStorage.setItem("nexus_prm_people", JSON.stringify(people));
+      const normalized = normalizePeople(people);
+      localStorage.setItem("nexus_prm_people", JSON.stringify(normalized));
       if (typeof updateCategoryCounts === 'function') updateCategoryCounts();
       renderPeople();
     }
@@ -601,7 +765,8 @@
 
       const filtered = people.filter(p => {
         const matchesCategory = (currentCategoryFilter === 'all') || (normalizeCategory(p.category) === currentCategoryFilter);
-        const textBlob = `${p.name} ${p.howKnow} ${p.motivations} ${p.quirks} ${p.background} ${p.personality}`.toLowerCase();
+        const networkBlob = (p.network || []).map(c => `${c.name} ${c.relation} ${c.decisionImpact} ${c.notes}`).join(' ');
+        const textBlob = `${p.name} ${p.howKnow} ${p.motivations} ${p.quirks} ${p.background} ${p.personality} ${networkBlob}`.toLowerCase();
         const matchesSearch = !query || textBlob.includes(query);
         return matchesCategory && matchesSearch;
       });
@@ -617,6 +782,7 @@
         const affinityPercent = (p.affinity || 5) * 10;
         const category = normalizeCategory(p.category);
         const badgeClass = `badge-${category}`;
+        const networkHtml = renderNetworkPreview(p.network);
 
         const card = document.createElement('div');
         card.className = 'person-card';
@@ -635,7 +801,9 @@
             ${p.motivations ? `<strong>Motivation:</strong> ${escapeHtml(p.motivations.slice(0, 95))}${p.motivations.length > 95 ? '...' : ''}` : 'No motivation noted.'}
           </div>
 
-          <div style="margin-top: auto; border-top: 1px solid #1e293b; padding-top: 10px;">
+          ${networkHtml}
+
+          <div style="${networkHtml ? '' : 'margin-top: auto;'} border-top: 1px solid #1e293b; padding-top: 10px;">
             <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 750;">
               <span style="color: var(--accent-gold);">AFFINITY LEVEL</span>
               <span style="color: var(--accent-emerald);">${p.affinity || 5} / 10</span>
@@ -647,6 +815,54 @@
         `;
         container.appendChild(card);
       });
+    }
+
+    // Compact strength meter used on cards and in the modal editor.
+    function tieDotsHtml(level, color) {
+      let dots = '';
+      for (let i = 1; i <= 5; i++) {
+        dots += `<span class="tie-dot"${i <= level ? ` style="background: ${color};"` : ''}></span>`;
+      }
+      return `<span class="tie-dots" role="img" aria-label="Bond strength ${level} of 5">${dots}</span>`;
+    }
+
+    // Sphere-of-influence summary shown on the person detail card.
+    function renderNetworkPreview(network) {
+      const entries = normalizeNetwork(network);
+      if (!entries.length) return '';
+
+      const ranked = entries.slice().sort((a, b) => b.closeness - a.closeness);
+      const shown = ranked.slice(0, 3);
+      const hidden = ranked.length - shown.length;
+
+      const rows = shown.map(c => {
+        const tie = tieLevel(c.closeness);
+        const impact = c.decisionImpact || c.notes;
+        return `
+          <div class="net-entry">
+            <div class="net-entry-top">
+              ${tieDotsHtml(tie.level, tie.color)}
+              <span class="net-entry-name">${escapeHtml(c.name || 'Unnamed connection')}</span>
+              ${c.relation ? `<span class="net-entry-relation">${escapeHtml(c.relation)}</span>` : ''}
+            </div>
+            ${impact ? `<div class="net-entry-impact">${escapeHtml(truncate(impact, 92))}</div>` : ''}
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="net-preview" style="margin-top: auto;">
+          <div class="net-preview-head">
+            <svg class="icon icon-sm"><use href="#i-network"/></svg> Sphere of Influence
+            <span class="net-preview-count">${entries.length}</span>
+          </div>
+          ${rows}
+          ${hidden > 0 ? `<div class="net-more">+${hidden} more connection${hidden === 1 ? '' : 's'}</div>` : ''}
+        </div>`;
+    }
+
+    function truncate(str, max) {
+      const text = String(str || '').trim();
+      return text.length > max ? `${text.slice(0, max).trimEnd()}...` : text;
     }
 
     // Modal Sheet Handlers
